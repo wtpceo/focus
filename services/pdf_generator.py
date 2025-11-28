@@ -7,38 +7,66 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import os
+import base64
+import tempfile
 from datetime import datetime
+from io import BytesIO
 
-# 한글 폰트 설정 (프로젝트 내 폰트 우선 사용)
-# services/ 디렉토리의 상위 디렉토리 (프로젝트 루트)
-SERVICE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SERVICE_DIR)
+# Base64 인코딩된 폰트 데이터 임포트
+from services.font_data import KOREAN_FONT_BASE64
 
-FONT_PATHS = [
-    os.path.join(PROJECT_ROOT, "fonts", "NanumGothic.ttf"),  # 프로젝트 내 나눔고딕
-    "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS fallback
-]
-
+# 한글 폰트 설정
 DEFAULT_FONT = 'Helvetica'
-print(f"[PDF Generator] Project root: {PROJECT_ROOT}")
-print(f"[PDF Generator] Looking for fonts...")
 
-for font_path in FONT_PATHS:
-    print(f"[PDF Generator] Checking: {font_path}")
-    if os.path.exists(font_path):
+def load_korean_font():
+    """한글 폰트 로드 (Base64 데이터에서 임시 파일로)"""
+    global DEFAULT_FONT
+
+    # 1. 먼저 프로젝트 내 폰트 파일 시도
+    SERVICE_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(SERVICE_DIR)
+    project_font = os.path.join(PROJECT_ROOT, "fonts", "SpoqaHanSansNeo-Regular.ttf")
+
+    if os.path.exists(project_font):
         try:
-            pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
+            pdfmetrics.registerFont(TTFont('KoreanFont', project_font))
             DEFAULT_FONT = 'KoreanFont'
-            print(f"[PDF Generator] Font loaded successfully: {font_path}")
-            break
+            print(f"[PDF Generator] Font loaded from project: {project_font}")
+            return True
         except Exception as e:
-            print(f"[PDF Generator] Font load error ({font_path}): {e}")
-            continue
-    else:
-        print(f"[PDF Generator] Font not found: {font_path}")
+            print(f"[PDF Generator] Project font failed: {e}")
 
-if DEFAULT_FONT == 'Helvetica':
-    print("[PDF Generator] WARNING: No Korean font loaded, using Helvetica (Korean text will not display correctly)")
+    # 2. Base64에서 임시 파일로 저장 후 로드 (Vercel 환경용)
+    try:
+        font_bytes = base64.b64decode(KOREAN_FONT_BASE64)
+        temp_font_path = "/tmp/SpoqaHanSansNeo-Regular.ttf"
+
+        with open(temp_font_path, 'wb') as f:
+            f.write(font_bytes)
+
+        pdfmetrics.registerFont(TTFont('KoreanFont', temp_font_path))
+        DEFAULT_FONT = 'KoreanFont'
+        print(f"[PDF Generator] Font loaded from temp file: {temp_font_path}")
+        return True
+    except Exception as e:
+        print(f"[PDF Generator] Temp font failed: {e}")
+
+    # 3. macOS 시스템 폰트 fallback
+    macos_font = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+    if os.path.exists(macos_font):
+        try:
+            pdfmetrics.registerFont(TTFont('KoreanFont', macos_font))
+            DEFAULT_FONT = 'KoreanFont'
+            print(f"[PDF Generator] Font loaded from macOS: {macos_font}")
+            return True
+        except Exception as e:
+            print(f"[PDF Generator] macOS font failed: {e}")
+
+    print("[PDF Generator] WARNING: No Korean font available")
+    return False
+
+# 폰트 로드 실행
+load_korean_font()
 
 # 출력 디렉토리 (Vercel에서는 /tmp 사용)
 OUTPUT_DIR = "/tmp" if os.environ.get("VERCEL") else "output"
