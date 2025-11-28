@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제안서/견적서 자동 발송 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>제안서/견적서 자동 발송</h1>
+
+        <!-- 문서 타입 선택 -->
+        <section class="section">
+            <h2>1. 문서 유형 선택</h2>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="doc_type" value="proposal" checked>
+                    <span>제안서</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="doc_type" value="estimate">
+                    <span>견적서</span>
+                </label>
+            </div>
+            <p class="help-text">* 제안서 선택 시 포커스미디어 제안서 PDF가 함께 첨부됩니다.</p>
+        </section>
+
+        <!-- 고객 정보 -->
+        <section class="section">
+            <h2>2. 고객 정보</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="company">회사명</label>
+                    <input type="text" id="company" placeholder="(주)회사명">
+                </div>
+                <div class="form-group">
+                    <label for="name">담당자명</label>
+                    <input type="text" id="name" placeholder="홍길동">
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" placeholder="example@company.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">연락처</label>
+                    <input type="tel" id="phone" placeholder="010-1234-5678">
+                </div>
+            </div>
+        </section>
+
+        <!-- 포커스미디어 품목 -->
+        <section class="section">
+            <h2>3. 포커스미디어</h2>
+
+            <!-- 아파트 목록 -->
+            <div id="apartment-list">
+                <!-- 아파트 항목들이 여기에 추가됨 -->
+            </div>
+
+            <!-- 아파트 추가 버튼 -->
+            <button type="button" class="btn btn-add" onclick="addApartment()">
+                + 아파트 추가
+            </button>
+
+            <!-- 계약 개월수 -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label>계약 개월수</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="months" value="3" checked>
+                        <span>3개월</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="months" value="6">
+                        <span>6개월</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="months" value="12">
+                        <span>12개월</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 기간 할인 -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label>기간 할인</label>
+                <div class="radio-group discount-group">
+                    <label class="radio-label">
+                        <input type="radio" name="discount" value="none" checked>
+                        <span>할인 없음</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="discount" value="5">
+                        <span>5% 할인</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="discount" value="10">
+                        <span>10% 할인</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="discount" value="15">
+                        <span>15% 할인</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 총 견적 -->
+            <div class="total-section">
+                <div class="calc-summary">
+                    <div class="calc-row">
+                        <span>총 월 견적</span>
+                        <span id="total-monthly">0원</span>
+                    </div>
+                    <div class="calc-row discount-row" id="discount-row" style="display: none;">
+                        <span>할인 금액</span>
+                        <span id="discount-amount">-0원</span>
+                    </div>
+                    <div class="calc-row">
+                        <span>월 최종 금액</span>
+                        <span id="monthly-final">0원</span>
+                    </div>
+                    <div class="calc-row final-row">
+                        <span>총 계약 금액 (<span id="months-display">3</span>개월)</span>
+                        <span id="final-total">0원</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 담당자 정보 -->
+        <section class="section">
+            <h2>4. 담당자 정보 (발신)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="manager_name">담당자명</label>
+                    <input type="text" id="manager_name" placeholder="홍길동">
+                </div>
+                <div class="form-group">
+                    <label for="manager_position">직책</label>
+                    <input type="text" id="manager_position" placeholder="대리">
+                </div>
+                <div class="form-group">
+                    <label for="manager_phone">연락처</label>
+                    <input type="tel" id="manager_phone" placeholder="010-1234-5678">
+                </div>
+                <div class="form-group">
+                    <label for="manager_email">이메일</label>
+                    <input type="email" id="manager_email" placeholder="manager@wiztheplanning.com">
+                </div>
+            </div>
+        </section>
+
+        <!-- 발송 방법 -->
+        <section class="section">
+            <h2>5. 발송 방법</h2>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="send_method" value="email" checked>
+                    <span>이메일 발송</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="send_method" value="kakao">
+                    <span>카카오톡 알림톡</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- 버튼 -->
+        <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="preview()">미리보기</button>
+            <button type="button" class="btn btn-primary" onclick="generateAndSend()">생성 및 발송</button>
+        </div>
+
+        <!-- 미리보기 모달 -->
+        <div id="preview-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>미리보기</h2>
+                <div id="preview-content"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+                    <button class="btn btn-primary" onclick="generateAndSend()">발송하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 모달 -->
+        <div id="result-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeResultModal()">&times;</span>
+                <h2>발송 결과</h2>
+                <div id="result-content"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" onclick="closeResultModal()">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
