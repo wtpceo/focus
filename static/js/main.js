@@ -361,6 +361,21 @@ function closeResultModal() {
     document.getElementById('result-modal').classList.remove('show');
 }
 
+// 로딩 모달 표시/숨김
+function showLoading(text, progress = '') {
+    document.getElementById('loading-text').textContent = text;
+    document.getElementById('loading-progress').textContent = progress;
+    document.getElementById('loading-modal').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loading-modal').classList.remove('show');
+}
+
+function updateLoadingProgress(progress) {
+    document.getElementById('loading-progress').textContent = progress;
+}
+
 // PDF 생성 및 발송
 async function generateAndSend() {
     closeModal();
@@ -393,6 +408,9 @@ async function generateAndSend() {
     }
 
     try {
+        // Step 1: PDF 생성
+        showLoading('PDF 생성 중...', '잠시만 기다려주세요');
+
         const genResponse = await fetch('/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -402,9 +420,13 @@ async function generateAndSend() {
         const genResult = await genResponse.json();
 
         if (!genResult.success) {
+            hideLoading();
             alert('PDF 생성에 실패했습니다.');
             return;
         }
+
+        // Step 2: 발송
+        showLoading('발송 중...', '이메일을 보내고 있습니다');
 
         const sendResponse = await fetch('/send', {
             method: 'POST',
@@ -418,9 +440,13 @@ async function generateAndSend() {
         });
 
         const sendResult = await sendResponse.json();
+
+        // 완료
+        hideLoading();
         showResult(sendResult, genResult.pdf_paths);
 
     } catch (error) {
+        hideLoading();
         alert('처리 중 오류가 발생했습니다.');
         console.error(error);
     }
