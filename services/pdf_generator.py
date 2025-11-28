@@ -12,9 +12,8 @@ from datetime import datetime
 # 한글 폰트 설정 (프로젝트 내 폰트 우선 사용)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_PATHS = [
-    os.path.join(BASE_DIR, "..", "fonts", "NotoSansKR-Regular.ttf"),  # 프로젝트 내 폰트 (우선)
+    os.path.join(BASE_DIR, "..", "fonts", "NanumGothic.ttf"),  # 나눔고딕 (우선)
     "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS
-    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # Linux
 ]
 
 DEFAULT_FONT = 'Helvetica'
@@ -24,10 +23,13 @@ for font_path in FONT_PATHS:
         try:
             pdfmetrics.registerFont(TTFont('KoreanFont', abs_path))
             DEFAULT_FONT = 'KoreanFont'
+            print(f"Font loaded: {abs_path}")
             break
         except Exception as e:
-            print(f"Font load error: {e}")
+            print(f"Font load error ({abs_path}): {e}")
             continue
+    else:
+        print(f"Font not found: {abs_path}")
 
 # 출력 디렉토리 (Vercel에서는 /tmp 사용)
 OUTPUT_DIR = "/tmp" if os.environ.get("VERCEL") else "output"
