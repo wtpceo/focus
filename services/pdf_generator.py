@@ -9,21 +9,24 @@ from reportlab.pdfbase.ttfonts import TTFont
 import os
 from datetime import datetime
 
-# 한글 폰트 설정 (맥OS 기본 폰트 사용, Vercel에서는 Noto Sans 사용)
+# 한글 폰트 설정 (프로젝트 내 폰트 우선 사용)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_PATHS = [
+    os.path.join(BASE_DIR, "..", "fonts", "NotoSansKR-Regular.ttf"),  # 프로젝트 내 폰트 (우선)
     "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # Linux
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "fonts", "NotoSansKR-Regular.otf"),  # 프로젝트 내 폰트
 ]
 
 DEFAULT_FONT = 'Helvetica'
 for font_path in FONT_PATHS:
-    if os.path.exists(font_path):
+    abs_path = os.path.abspath(font_path)
+    if os.path.exists(abs_path):
         try:
-            pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
+            pdfmetrics.registerFont(TTFont('KoreanFont', abs_path))
             DEFAULT_FONT = 'KoreanFont'
             break
-        except:
+        except Exception as e:
+            print(f"Font load error: {e}")
             continue
 
 # 출력 디렉토리 (Vercel에서는 /tmp 사용)
