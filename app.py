@@ -106,7 +106,8 @@ def generate():
 
 
 # 포커스미디어 제안서 PDF 경로 (고정)
-PROPOSAL_PDF_PATH = "/Users/wtpceo/Desktop/01.위플 프로젝트/01.개발/09.contract_auto/포커스미디어_동네상권정보_위즈더플래닝.pdf"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROPOSAL_PDF_PATH = os.path.join(BASE_DIR, "포커스미디어_동네상권정보_위즈더플래닝.pdf")
 
 
 @app.route("/send", methods=["POST"])
