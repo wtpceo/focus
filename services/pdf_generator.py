@@ -10,26 +10,35 @@ import os
 from datetime import datetime
 
 # 한글 폰트 설정 (프로젝트 내 폰트 우선 사용)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# services/ 디렉토리의 상위 디렉토리 (프로젝트 루트)
+SERVICE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SERVICE_DIR)
+
 FONT_PATHS = [
-    os.path.join(BASE_DIR, "..", "fonts", "NanumGothic.ttf"),  # 나눔고딕 (우선)
-    "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS
+    os.path.join(PROJECT_ROOT, "fonts", "NanumGothic.ttf"),  # 프로젝트 내 나눔고딕
+    "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS fallback
 ]
 
 DEFAULT_FONT = 'Helvetica'
+print(f"[PDF Generator] Project root: {PROJECT_ROOT}")
+print(f"[PDF Generator] Looking for fonts...")
+
 for font_path in FONT_PATHS:
-    abs_path = os.path.abspath(font_path)
-    if os.path.exists(abs_path):
+    print(f"[PDF Generator] Checking: {font_path}")
+    if os.path.exists(font_path):
         try:
-            pdfmetrics.registerFont(TTFont('KoreanFont', abs_path))
+            pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
             DEFAULT_FONT = 'KoreanFont'
-            print(f"Font loaded: {abs_path}")
+            print(f"[PDF Generator] Font loaded successfully: {font_path}")
             break
         except Exception as e:
-            print(f"Font load error ({abs_path}): {e}")
+            print(f"[PDF Generator] Font load error ({font_path}): {e}")
             continue
     else:
-        print(f"Font not found: {abs_path}")
+        print(f"[PDF Generator] Font not found: {font_path}")
+
+if DEFAULT_FONT == 'Helvetica':
+    print("[PDF Generator] WARNING: No Korean font loaded, using Helvetica (Korean text will not display correctly)")
 
 # 출력 디렉토리 (Vercel에서는 /tmp 사용)
 OUTPUT_DIR = "/tmp" if os.environ.get("VERCEL") else "output"
