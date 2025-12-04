@@ -117,7 +117,7 @@ def send_kakao_alimtalk(phone, customer_name, doc_type, download_url=None):
                     "templateId": template_id,
                     "variables": {
                         "#{고객명}": customer_name,
-                        "#{URL}": download_url or SERVICE_URL
+                        "#{URL}": (download_url or SERVICE_URL).replace("https://", "")
                     },
                     "disableSms": True
                 }
