@@ -440,24 +440,13 @@ async function generateAndSend() {
             "15": "15% 할인"
         };
 
-        // 금액 계산 디버깅
-        console.log('apartments:', data.apartments);
-
-        const total_monthly = data.apartments.reduce((sum, apt) => {
-            console.log('apt:', apt, 'monthly_total:', apt.monthly_total);
-            return sum + (apt.monthly_total || 0);
-        }, 0);
-
-        console.log('total_monthly:', total_monthly);
-
+        const total_monthly = data.apartments.reduce((sum, apt) => sum + (apt.monthly_total || 0), 0);
         const discount_rate = discountRates[data.discount] || 0;
         const discount_label = discountLabels[data.discount] || "할인 없음";
         const discount_amount = Math.floor(total_monthly * discount_rate);
         const monthly_final = total_monthly - discount_amount;
         const months = parseInt(data.months) || 3;
         const final_total = monthly_final * months;
-
-        console.log('final values:', { total_monthly, discount_amount, monthly_final, final_total });
 
         const sendResponse = await fetch('/send', {
             method: 'POST',

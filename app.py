@@ -270,13 +270,12 @@ def generate_pdf_realtime(doc_id, doc_type):
             pdf_path = generate_estimate(doc_data)
             filename = f"견적서_{doc_data.get('customer', {}).get('company', 'document')}.pdf"
         elif doc_type == "proposal":
-            # 제안서는 고정 PDF 파일 반환
+            # 제안서는 고정 PDF 파일 반환 (브라우저에서 바로 보기)
             if os.path.exists(PROPOSAL_PDF_PATH):
                 return send_file(
                     PROPOSAL_PDF_PATH,
                     mimetype='application/pdf',
-                    as_attachment=True,
-                    download_name="포커스미디어_제안서.pdf"
+                    as_attachment=False  # False면 브라우저에서 바로 보기
                 )
             else:
                 return "제안서 파일을 찾을 수 없습니다.", 404
