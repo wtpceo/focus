@@ -31,7 +31,7 @@ SOLAPI_TEMPLATE_ID_ESTIMATE = os.getenv("SOLAPI_TEMPLATE_ID_ESTIMATE", "")  # �
 SOLAPI_SENDER_PHONE = os.getenv("SOLAPI_SENDER_PHONE", "")  # 발신번호 (대체발송용)
 
 # 솔라피 API 엔드포인트
-SOLAPI_API_URL = "https://api.solapi.com/messages/v4/send-many"
+SOLAPI_API_URL = "https://api.solapi.com/messages/v4/send"
 
 # 서비스 URL (Vercel 도메인으로 변경)
 SERVICE_URL = os.getenv("SERVICE_URL", "http://localhost:5000")
@@ -107,23 +107,21 @@ def send_kakao_alimtalk(phone, customer_name, doc_type, download_url=None):
         # 템플릿 메시지 생성 (변수 치환된 최종 메시지)
         template_text = get_template_message(customer_name, template_doc_type, download_url or SERVICE_URL)
 
-        # 솔라피 API 요청 데이터
+        # 솔라피 API 요청 데이터 (단건 발송)
         payload = {
-            "messages": [
-                {
-                    "to": phone,
-                    "from": SOLAPI_SENDER_PHONE,  # 대체발송용 발신번호
-                    "kakaoOptions": {
-                        "pfId": SOLAPI_PF_ID,
-                        "templateId": template_id,
-                        "variables": {
-                            "#{고객명}": customer_name,
-                            "#{URL}": download_url or SERVICE_URL
-                        },
-                        "disableSms": False  # 알림톡 실패 시 SMS 대체발송
-                    }
+            "message": {
+                "to": phone,
+                "from": SOLAPI_SENDER_PHONE,
+                "kakaoOptions": {
+                    "pfId": SOLAPI_PF_ID,
+                    "templateId": template_id,
+                    "variables": {
+                        "#{고객명}": customer_name,
+                        "#{URL}": download_url or SERVICE_URL
+                    },
+                    "disableSms": False
                 }
-            ]
+            }
         }
 
         headers = {
@@ -142,20 +140,19 @@ def send_kakao_alimtalk(phone, customer_name, doc_type, download_url=None):
 
         # 응답 확인
         if response.status_code == 200:
-            # 솔라피 응답 구조 확인
-            group_info = result.get("groupInfo", {})
-            failed_list = result.get("failedMessageList", [])
+            # 단건 발송 응답 처리
+            group_id = result.get("groupId")
+            message_id = result.get("messageId")
 
-            if not failed_list:
+            if group_id or message_id:
                 return {
                     "success": True,
                     "error": None,
-                    "groupId": group_info.get("groupId"),
-                    "count": group_info.get("count", {}).get("total", 1)
+                    "groupId": group_id,
+                    "messageId": message_id
                 }
             else:
-                error_msg = failed_list[0].get("reason", "알 수 없는 오류")
-                return {"success": False, "error": f"발송 실패: {error_msg}"}
+                return {"success": False, "error": f"발송 실패: {result}"}
         else:
             error_msg = result.get("errorMessage", result.get("message", "API 오류"))
             return {"success": False, "error": f"API 오류 ({response.status_code}): {error_msg}"}
