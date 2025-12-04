@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적서 - 위즈더플래닝</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header .date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 25px 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .customer-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .customer-info p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .customer-info .company {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .customer-info .name {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .intro-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .apartment-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .apartment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .apartment-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .apartment-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .apartment-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .detail-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary {
+            background: #f0f4ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #667eea;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-row.discount .summary-value {
+            color: #e74c3c;
+        }
+
+        .summary-row.total .summary-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-row.total .summary-value {
+            font-size: 22px;
+            color: #667eea;
+        }
+
+        .vat-notice {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .notice {
+            background: #fff9e6;
+            border-left: 4px solid #f0c000;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+        }
+
+        .notice-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .notice-list {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+            padding-left: 16px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .company-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .company-info {
+            font-size: 12px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>견 적 서</h1>
+            <div class="date">{{ date }}</div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <div class="customer-info">
+                    <p class="company">{{ customer.company }}</p>
+                    <p class="name">{{ customer.name }} 님 귀하</p>
+                </div>
+            </div>
+
+            <p class="intro-text">
+                안녕하세요, (주)위즈더플래닝입니다.<br>
+                귀사의 무궁한 발전을 기원하며, 아래와 같이 견적드립니다.
+            </p>
+
+            <div class="section">
+                <div class="section-title">포커스미디어 광고 내역</div>
+
+                {% for apt in apartments %}
+                <div class="apartment-card">
+                    <div class="apartment-header">
+                        <div class="apartment-number">{{ loop.index }}</div>
+                        <span class="apartment-name">{{ apt.apartment_name }}</span>
+                    </div>
+                    <div class="apartment-details">
+                        <div class="detail-item">
+                            <div class="detail-label">모니터 대수</div>
+                            <div class="detail-value">{{ apt.monitor_count }}대</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">대당 단가</div>
+                            <div class="detail-value">{{ "{:,}".format(apt.unit_price) }}원</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">월 견적</div>
+                            <div class="detail-value">{{ "{:,}".format(apt.monthly_total) }}원</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="section">
+                <div class="summary">
+                    <div class="summary-row">
+                        <span class="summary-label">총 월 견적</span>
+                        <span class="summary-value">{{ "{:,}".format(total_monthly) }}원</span>
+                    </div>
+                    {% if discount_amount > 0 %}
+                    <div class="summary-row discount">
+                        <span class="summary-label">{{ discount_label }}</span>
+                        <span class="summary-value">-{{ "{:,}".format(discount_amount) }}원</span>
+                    </div>
+                    {% endif %}
+                    <div class="summary-row">
+                        <span class="summary-label">월 최종 금액</span>
+                        <span class="summary-value">{{ "{:,}".format(monthly_final) }}원</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="summary-label">총 계약 금액 ({{ months }}개월)</span>
+                        <span class="summary-value">{{ "{:,}".format(final_total) }}원</span>
+                    </div>
+                    <div class="vat-notice">※ 부가세 별도</div>
+                </div>
+            </div>
+
+            <div class="notice">
+                <div class="notice-title">안내사항</div>
+                <ul class="notice-list">
+                    <li>본 견적서의 유효기간은 발행일로부터 30일입니다.</li>
+                    <li>세부 사항은 협의 후 조정될 수 있습니다.</li>
+                    <li>문의사항이 있으시면 아래 담당자에게 연락 부탁드립니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="company-name">(주)위즈더플래닝</div>
+            <div class="company-info">
+                사업자번호: 668-81-00391<br>
+                주소: 서울시 금천구 디지털로 178 A동 2518호, 19호<br>
+                대표전화: 1670-0704
+            </div>
+            <div class="btn-group">
+                <a href="/pdf/{{ doc_id }}/estimate" class="download-btn">PDF 다운로드</a>
+                {% if 'proposal' in doc_types %}
+                <a href="/pdf/{{ doc_id }}/proposal" class="download-btn btn-secondary">제안서 다운로드</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

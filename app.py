@@ -221,21 +221,37 @@ def generate_doc_id(doc_data):
 
 @app.route("/view/<doc_id>")
 def view_document(doc_id):
-    """문서 보기 페이지 - 다운로드 링크 제공"""
-    # doc_id는 encoded data
+    """문서 보기 페이지 - 견적서는 웹에서 바로 표시"""
     try:
         payload = decode_doc_data(doc_id)
         doc_data = payload.get("data", {})
         doc_types = payload.get("types", [])
 
-        customer = doc_data.get("customer", {})
-
-        return render_template(
-            "view_document.html",
-            customer=customer,
-            doc_types=doc_types,
-            doc_id=doc_id
-        )
+        # 견적서가 포함되어 있으면 웹에서 바로 보여주기
+        if "estimate" in doc_types:
+            return render_template(
+                "view_estimate.html",
+                customer=doc_data.get("customer", {}),
+                apartments=doc_data.get("apartments", []),
+                total_monthly=doc_data.get("total_monthly", 0),
+                discount_label=doc_data.get("discount_label", "할인 없음"),
+                discount_rate=doc_data.get("discount_rate", 0),
+                discount_amount=doc_data.get("discount_amount", 0),
+                monthly_final=doc_data.get("monthly_final", 0),
+                months=doc_data.get("months", 3),
+                final_total=doc_data.get("final_total", 0),
+                date=datetime.now().strftime("%Y년 %m월 %d일"),
+                doc_types=doc_types,
+                doc_id=doc_id
+            )
+        else:
+            # 제안서만 있으면 다운로드 페이지
+            return render_template(
+                "view_document.html",
+                customer=doc_data.get("customer", {}),
+                doc_types=doc_types,
+                doc_id=doc_id
+            )
     except Exception as e:
         return f"문서를 찾을 수 없습니다: {str(e)}", 404
 

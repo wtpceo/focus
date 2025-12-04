@@ -430,10 +430,23 @@ async function generateAndSend() {
         }
 
         // Step 2: 발송
-        showLoading('발송 중...', '이메일을 보내고 있습니다');
+        showLoading('발송 중...', '발송 중입니다');
 
-        // 미리보기 데이터가 있으면 계산된 값 사용, 없으면 기본값
-        const previewData = lastPreviewData || data;
+        // 금액 계산 (미리보기 데이터가 없을 수 있으므로 직접 계산)
+        const discountLabels = {
+            "none": "할인 없음",
+            "5": "5% 할인",
+            "10": "10% 할인",
+            "15": "15% 할인"
+        };
+
+        const total_monthly = data.apartments.reduce((sum, apt) => sum + (apt.monthly_total || 0), 0);
+        const discount_rate = discountRates[data.discount] || 0;
+        const discount_label = discountLabels[data.discount] || "할인 없음";
+        const discount_amount = Math.floor(total_monthly * discount_rate);
+        const monthly_final = total_monthly - discount_amount;
+        const months = parseInt(data.months) || 3;
+        const final_total = monthly_final * months;
 
         const sendResponse = await fetch('/send', {
             method: 'POST',
@@ -443,14 +456,14 @@ async function generateAndSend() {
                 customer: data.customer,
                 send_methods: data.send_methods,
                 doc_types: data.doc_types,
-                apartments: previewData.apartments,
-                total_monthly: previewData.total_monthly,
-                discount_label: previewData.discount_label,
-                discount_rate: previewData.discount_rate,
-                discount_amount: previewData.discount_amount,
-                monthly_final: previewData.monthly_final,
-                months: previewData.months,
-                final_total: previewData.final_total,
+                apartments: data.apartments,
+                total_monthly: total_monthly,
+                discount_label: discount_label,
+                discount_rate: discount_rate,
+                discount_amount: discount_amount,
+                monthly_final: monthly_final,
+                months: months,
+                final_total: final_total,
                 manager: data.manager
             })
         });
