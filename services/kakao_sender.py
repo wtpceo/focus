@@ -119,7 +119,7 @@ def send_kakao_alimtalk(phone, customer_name, doc_type, download_url=None):
                         "#{고객명}": customer_name,
                         "#{URL}": download_url or SERVICE_URL
                     },
-                    "disableSms": False
+                    "disableSms": True
                 }
             }
         }
