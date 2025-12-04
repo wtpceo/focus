@@ -435,7 +435,16 @@ async function generateAndSend() {
                 pdf_paths: genResult.pdf_paths,
                 customer: data.customer,
                 send_methods: data.send_methods,
-                doc_types: data.doc_types
+                doc_types: data.doc_types,
+                apartments: data.apartments,
+                total_monthly: data.total_monthly,
+                discount_label: data.discount_label,
+                discount_rate: data.discount_rate,
+                discount_amount: data.discount_amount,
+                monthly_final: data.monthly_final,
+                months: data.months,
+                final_total: data.final_total,
+                manager: data.manager
             })
         });
 

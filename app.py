@@ -7,6 +7,7 @@ import os
 import json
 import base64
 import hashlib
+import zlib
 from datetime import datetime
 from io import BytesIO
 
@@ -186,25 +187,30 @@ SERVICE_URL = os.getenv("SERVICE_URL", "http://localhost:5000")
 
 
 def encode_doc_data(doc_data, doc_types):
-    """문서 데이터를 URL-safe Base64로 인코딩"""
+    """문서 데이터를 압축 후 URL-safe Base64로 인코딩"""
     payload = {
-        "data": doc_data,
-        "types": doc_types
+        "d": doc_data,  # 키 이름 축약
+        "t": doc_types
     }
-    json_str = json.dumps(payload, ensure_ascii=False)
-    encoded = base64.urlsafe_b64encode(json_str.encode('utf-8')).decode('utf-8')
-    # 패딩 제거 (URL에서 더 깔끔하게)
+    json_str = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
+    # zlib으로 압축
+    compressed = zlib.compress(json_str.encode('utf-8'), level=9)
+    encoded = base64.urlsafe_b64encode(compressed).decode('utf-8')
     return encoded.rstrip('=')
 
 
 def decode_doc_data(encoded):
-    """Base64 인코딩된 데이터 디코딩"""
+    """압축된 Base64 데이터 디코딩"""
     # 패딩 복원
     padding = 4 - len(encoded) % 4
     if padding != 4:
         encoded += '=' * padding
-    json_str = base64.urlsafe_b64decode(encoded.encode('utf-8')).decode('utf-8')
-    return json.loads(json_str)
+    # Base64 디코딩 후 압축 해제
+    compressed = base64.urlsafe_b64decode(encoded.encode('utf-8'))
+    json_str = zlib.decompress(compressed).decode('utf-8')
+    payload = json.loads(json_str)
+    # 키 이름 복원
+    return {"data": payload.get("d", {}), "types": payload.get("t", [])}
 
 
 def generate_doc_id(doc_data):
