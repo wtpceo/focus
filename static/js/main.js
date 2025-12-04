@@ -9,6 +9,9 @@ const discountRates = {
 // 아파트 카운터
 let apartmentCounter = 0;
 
+// 미리보기 데이터 저장 (발송 시 사용)
+let lastPreviewData = null;
+
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 첫 번째 아파트 추가
@@ -203,6 +206,7 @@ async function preview() {
         });
 
         const result = await response.json();
+        lastPreviewData = result;  // 미리보기 데이터 저장
         showPreview(result);
     } catch (error) {
         alert('미리보기 생성 중 오류가 발생했습니다.');
@@ -428,6 +432,9 @@ async function generateAndSend() {
         // Step 2: 발송
         showLoading('발송 중...', '이메일을 보내고 있습니다');
 
+        // 미리보기 데이터가 있으면 계산된 값 사용, 없으면 기본값
+        const previewData = lastPreviewData || data;
+
         const sendResponse = await fetch('/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -436,9 +443,14 @@ async function generateAndSend() {
                 customer: data.customer,
                 send_methods: data.send_methods,
                 doc_types: data.doc_types,
-                apartments: data.apartments,
-                discount: data.discount,
-                months: data.months,
+                apartments: previewData.apartments,
+                total_monthly: previewData.total_monthly,
+                discount_label: previewData.discount_label,
+                discount_rate: previewData.discount_rate,
+                discount_amount: previewData.discount_amount,
+                monthly_final: previewData.monthly_final,
+                months: previewData.months,
+                final_total: previewData.final_total,
                 manager: data.manager
             })
         });

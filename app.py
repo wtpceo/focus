@@ -147,30 +147,17 @@ def send():
         )
 
     if "kakao" in send_methods and customer.get("phone"):
-        # 아파트 및 할인 정보
-        apartments = data.get("apartments", [])
-        discount_key = data.get("discount", "none")
-        months = int(data.get("months", 3))
-
-        # 금액 계산 (프론트에서 안 넘어올 수 있으므로 서버에서 계산)
-        total_monthly = sum(apt.get("monthly_total", 0) for apt in apartments)
-        discount_rate = DISCOUNT_OPTIONS.get(discount_key, {}).get("rate", 0)
-        discount_label = DISCOUNT_OPTIONS.get(discount_key, {}).get("label", "할인 없음")
-        discount_amount = int(total_monthly * discount_rate)
-        monthly_final = total_monthly - discount_amount
-        final_total = monthly_final * months
-
-        # 알림톡용 문서 데이터 생성
+        # 알림톡용 문서 데이터 생성 (프론트에서 계산된 값 그대로 사용)
         doc_data = {
             "customer": customer,
-            "apartments": apartments,
-            "total_monthly": total_monthly,
-            "discount_label": discount_label,
-            "discount_rate": discount_rate,
-            "discount_amount": discount_amount,
-            "monthly_final": monthly_final,
-            "months": months,
-            "final_total": final_total,
+            "apartments": data.get("apartments", []),
+            "total_monthly": data.get("total_monthly", 0),
+            "discount_label": data.get("discount_label", "할인 없음"),
+            "discount_rate": data.get("discount_rate", 0),
+            "discount_amount": data.get("discount_amount", 0),
+            "monthly_final": data.get("monthly_final", 0),
+            "months": data.get("months", 3),
+            "final_total": data.get("final_total", 0),
             "manager": data.get("manager", {})
         }
 
