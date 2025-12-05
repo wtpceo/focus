@@ -79,11 +79,8 @@ def send_kakao_alimtalk(phone, customer_name, doc_type, download_url=None):
         }
 
     # 문서 유형에 따라 템플릿 선택
-    if "제안서" in doc_type and "견적서" in doc_type:
-        # 둘 다 포함된 경우 제안서 템플릿 사용 (또는 견적서 템플릿)
-        template_id = SOLAPI_TEMPLATE_ID_PROPOSAL
-        template_doc_type = "제안서"
-    elif "견적서" in doc_type:
+    # 견적서가 포함된 경우 새 견적서 템플릿 사용 (URL이 버튼에만 있는 버전)
+    if "견적서" in doc_type:
         template_id = SOLAPI_TEMPLATE_ID_ESTIMATE
         template_doc_type = "견적서"
     else:
